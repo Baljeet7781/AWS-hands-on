@@ -1,0 +1,62 @@
+Configure S3 Event Notification with SNS and Email
+
+Here I am setting up an S3 bucket notification that will send me an email whenever a new file is uploaded.
+
+Step 1: Creating an S3 bucket
+Creating a new bucket (in my case: img-stg121)
+
+Step 2: creating an SNS topic and subscription
+creating a topic (in my case: S3-event-notification)
+creating a subscription for this topic with protocol = Email and add your email address
+
+Check your email inbox and confirm the subscription by clicking the confirmation link
+
+📸 Screenshot: SNS topic created
+📸 Screenshot: subscription confirmation email
+
+Step 3: Attach an access policy to SNS topic
+Go to the SNS topic → Edit → Access policy
+Replace the Resource ARN with your topic ARN
+Replace the Source ARN with your S3 bucket ARN
+
+Here’s the policy I used:
+
+{
+  "Version": "2008-10-17",
+  "Id": "example-ID",
+  "Statement": [
+    {
+      "Sid": "Allows an S3 bucket to Publish events",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Action": "sns:Publish",
+      "Resource": "arn:aws:sns:us-east-2:256207368585:S3-event-notification",
+      "Condition": {
+        "ArnEquals": {
+          "aws:SourceArn": "arn:aws:s3:::img-stg121"
+        }
+      }
+    }
+  ]
+}
+
+📸 Screenshot: Access policy added to SNS topic
+
+Step 4: Configure S3 Event Notification
+Go to S3 bucket → Properties
+Scroll down to Event notifications → creating event
+Select the event type (e.g., PUT for new uploads)
+Select the SNS topic as the destination
+
+📸 Screenshot: S3 event created
+
+Step 5: Upload a file and test
+Upload a test file (I uploaded test-image.jpg) to the S3 bucket
+
+📸 Screenshot: File uploaded
+
+Check your email inbox → You should receive a notification email from SNS confirming the upload
+
+📸 Screenshot: Notification email received
